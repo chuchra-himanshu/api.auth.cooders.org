@@ -55,7 +55,7 @@ userSchema.pre("save", async function (next) {
 });
 
 // Methods Section
-userSchema.methods.isPasswordValid = async function (
+userSchema.methods.validatePassword = async function (
   password: string
 ): Promise<boolean> {
   return await bcrypt.compare(password, this.password);

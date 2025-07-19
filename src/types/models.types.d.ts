@@ -4,7 +4,7 @@ interface UserSchemaInterface extends Document {
   password: string;
   rememberMe: boolean;
   emailVerificationStatus: boolean;
-  isPasswordValid: (password: string) => Promise<boolean>;
+  validatePassword: (password: string) => Promise<boolean>;
   generateAccessToken: () => Promise<string>;
   generateRefreshToken: (rememberMe: boolean) => Promise<string>;
 }

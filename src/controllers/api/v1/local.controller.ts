@@ -57,7 +57,51 @@ const signup = asyncHandler(async (req: Request, res: Response) => {
     );
 });
 
-const signin = asyncHandler(async (req: Request, res: Response) => {});
+const signin = asyncHandler(async (req: Request, res: Response) => {
+  const { username, password, rememberMe } = req.body;
+
+  const user = await User.findOne({ username });
+  if (!user) {
+    return res.status(404).json(APIError.send(404, "Invalid Email / Password"));
+  }
+
+  const isPasswordValid = await user.validatePassword(password);
+  if (!isPasswordValid) {
+    return res.status(404).json(APIError.send(404, "Invalid Email / Password"));
+  }
+
+  user.rememberMe = rememberMe;
+  await user.save();
+
+  const accessToken: string = await user.generateAccessToken();
+  const refreshToken: string = await user.generateRefreshToken(rememberMe);
+  const tokenExpirySeconds = rememberMe
+    ? 7 * 24 * 60 * 60 * 1000
+    : 1 * 24 * 60 * 60 * 1000;
+
+  await Token.findOneAndUpdate(
+    { user: user._id },
+    {
+      refreshToken: {
+        code: refreshToken,
+        expiry: new Date(Date.now() + tokenExpirySeconds),
+      },
+    }
+  );
+
+  return res
+    .cookie("ACCESS_TOKEN", accessToken, HELPER_UTILITIES.COOKIE_OPTIONS)
+    .cookie("REFRESH_TOKEN", refreshToken, HELPER_UTILITIES.COOKIE_OPTIONS)
+    .status(200)
+    .json(
+      APIResponse.send(200, "User signed in successfully", {
+        email: user.email,
+        username: user.username,
+        rememberMe: user.rememberMe,
+        emailVerificationStatus: user.emailVerificationStatus,
+      })
+    );
+});
 
 const signout = asyncHandler(async (req: Request, res: Response) => {});
 
