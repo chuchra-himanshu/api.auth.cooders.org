@@ -3,6 +3,7 @@ dotenv.config();
 
 const ENV_CONSTANTS = {
   PORT: Number(process.env.PORT) || 3001,
+  NODE_ENV: String(process.env.NODE_ENV),
   JWT_ACCESS_TOKEN_SECRET: String(process.env.JWT_ACCESS_TOKEN_SECRET),
   JWT_REFRESH_TOKEN_SECRET: String(process.env.JWT_REFRESH_TOKEN_SECRET),
 };
