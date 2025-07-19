@@ -1,9 +1,12 @@
-interface UserSchemaInterface {
+interface UserSchemaInterface extends Document {
   username: string;
   email: string;
   password: string;
   rememberMe: boolean;
   emailVerificationStatus: boolean;
+  isPasswordValid: (password: string) => Promise<boolean>;
+  generateAccessToken: () => Promise<string>;
+  generateRefreshToken: () => Promise<string>;
 }
 
 interface TokenSchemaInterface {

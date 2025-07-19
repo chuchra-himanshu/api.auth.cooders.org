@@ -1,6 +1,8 @@
 // Import Section
 import mongoose, { CallbackError } from "mongoose";
 import bcrypt from "bcryptjs";
+import JWT from "jsonwebtoken";
+import { ENV_CONSTANTS } from "../constants";
 
 // Schema Section
 const userSchema = new mongoose.Schema<UserSchemaInterface>(
@@ -57,6 +59,31 @@ userSchema.methods.isPasswordValid = async function (
   password: string
 ): Promise<boolean> {
   return await bcrypt.compare(password, this.password);
+};
+
+userSchema.methods.generateAccessToken = async function (): Promise<string> {
+  return await JWT.sign(
+    {
+      username: this.username,
+    },
+    ENV_CONSTANTS.JWT_ACCESS_TOKEN_SECRET,
+    {
+      expiresIn: "1d",
+    }
+  );
+};
+
+userSchema.methods.generateRefreshToken = async function (): Promise<string> {
+  return await JWT.sign(
+    {
+      username: this.username,
+      email: this.email,
+    },
+    ENV_CONSTANTS.JWT_REFRESH_TOKEN_SECRET,
+    {
+      expiresIn: "1d",
+    }
+  );
 };
 
 // Export Section
