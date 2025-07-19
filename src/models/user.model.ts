@@ -73,7 +73,11 @@ userSchema.methods.generateAccessToken = async function (): Promise<string> {
   );
 };
 
-userSchema.methods.generateRefreshToken = async function (): Promise<string> {
+userSchema.methods.generateRefreshToken = async function (
+  rememberMe: boolean
+): Promise<string> {
+  const tokenExpiry = rememberMe ? "7d" : "1d";
+
   return await JWT.sign(
     {
       username: this.username,
@@ -81,7 +85,7 @@ userSchema.methods.generateRefreshToken = async function (): Promise<string> {
     },
     ENV_CONSTANTS.JWT_REFRESH_TOKEN_SECRET,
     {
-      expiresIn: "1d",
+      expiresIn: tokenExpiry,
     }
   );
 };

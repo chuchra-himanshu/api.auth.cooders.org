@@ -30,13 +30,16 @@ const signup = asyncHandler(async (req: Request, res: Response) => {
   });
 
   const accessToken: string = await user.generateAccessToken();
-  const refreshToken: string = await user.generateRefreshToken();
+  const refreshToken: string = await user.generateRefreshToken(rememberMe);
+  const tokenExpirySeconds = rememberMe
+    ? 7 * 24 * 60 * 60 * 1000
+    : 1 * 24 * 60 * 60 * 1000;
 
   await Token.create({
     user: user._id,
     refreshToken: {
       code: refreshToken,
-      expiry: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      expiry: new Date(Date.now() + tokenExpirySeconds),
     },
   });
 

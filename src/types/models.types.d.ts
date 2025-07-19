@@ -6,7 +6,7 @@ interface UserSchemaInterface extends Document {
   emailVerificationStatus: boolean;
   isPasswordValid: (password: string) => Promise<boolean>;
   generateAccessToken: () => Promise<string>;
-  generateRefreshToken: () => Promise<string>;
+  generateRefreshToken: (rememberMe: boolean) => Promise<string>;
 }
 
 interface TokenSchemaInterface {
