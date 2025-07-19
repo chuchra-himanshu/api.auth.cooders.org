@@ -1,5 +1,6 @@
 // Import Section
-import mongoose from "mongoose";
+import mongoose, { CallbackError } from "mongoose";
+import bcrypt from "bcryptjs";
 
 // Schema Section
 const userSchema = new mongoose.Schema<UserSchemaInterface>(
@@ -37,6 +38,26 @@ const userSchema = new mongoose.Schema<UserSchemaInterface>(
     timestamps: true,
   }
 );
+
+// Hooks Section
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+
+  try {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  } catch (err) {
+    next(err as CallbackError);
+  }
+});
+
+// Methods Section
+userSchema.methods.isPasswordValid = async function (
+  password: string
+): Promise<boolean> {
+  return await bcrypt.compare(password, this.password);
+};
 
 // Export Section
 const User = mongoose.model<UserSchemaInterface>("User", userSchema);
