@@ -179,7 +179,38 @@ const changePassword = asyncHandler(async (req: Request, res: Response) => {
     .json(APIResponse.send(200, "Password updated successfully"));
 });
 
-const changeUsername = asyncHandler(async (req: Request, res: Response) => {});
+const changeUsername = asyncHandler(async (req: Request, res: Response) => {
+  const { user_id } = req.user;
+  const { username } = req.body;
+
+  const user = await User.findById(user_id);
+  if (!user) {
+    return res.status(404).json(APIError.send(404, "User not found!"));
+  }
+
+  if (user.username === username) {
+    return res
+      .status(400)
+      .json(
+        APIError.send(
+          400,
+          "New username must be different from the current one"
+        )
+      );
+  }
+
+  const usernameExists = await User.exists({ username });
+  if (usernameExists) {
+    return res.status(409).json(APIError.send(409, "Username already taken"));
+  }
+
+  user.username = username;
+  await user.save();
+
+  return res
+    .status(200)
+    .json(APIResponse.send(200, "Username updated successfully"));
+});
 
 // Export Section
 export default {
