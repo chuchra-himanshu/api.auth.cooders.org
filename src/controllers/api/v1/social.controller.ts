@@ -1,9 +1,12 @@
 // Import Section
 import { type Response, type Request } from "express";
 import { APIError, APIResponse, asyncHandler } from "../../../handlers";
+import crypto from "crypto";
 
 // Controller Actions
-const googleOAuth = asyncHandler(async (req: Request, res: Response) => {});
+const googleOAuth = asyncHandler(async (req: Request, res: Response) => {
+  const state = crypto.randomBytes(16).toString("hex");
+});
 const googleOAuthCallback = asyncHandler(
   async (req: Request, res: Response) => {}
 );

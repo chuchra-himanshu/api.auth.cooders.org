@@ -14,7 +14,7 @@ const {
 } = CONTROLLERS.V1_CONTROLLERS.SOCIAL_CONTROLLERS;
 
 // Routes Section
-router.route("/oauth/google").post(googleOAuth);
+router.route("/oauth/google").get(googleOAuth);
 router.route("/oauth/google/callback").get(googleOAuthCallback);
 router.route("/oauth/github").post(githubOAuth);
 router.route("/oauth/github/callback").get(githubOAuthCallback);

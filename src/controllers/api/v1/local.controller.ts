@@ -2,7 +2,6 @@
 import { type Response, type Request } from "express";
 import { APIError, APIResponse, asyncHandler } from "../../../handlers";
 import { Token, User } from "../../../models";
-import { ENV_CONSTANTS } from "../../../constants";
 import { HELPER_UTILITIES } from "../../../utils";
 
 // Controller Actions
@@ -103,7 +102,33 @@ const signin = asyncHandler(async (req: Request, res: Response) => {
     );
 });
 
-const signout = asyncHandler(async (req: Request, res: Response) => {});
+const signout = asyncHandler(async (req: Request, res: Response) => {
+  const { user_id } = req.user;
+
+  try {
+    await Token.updateOne(
+      { user: user_id },
+      {
+        $set: {
+          "refreshToken.code": "",
+          "refreshToken.expiry": new Date(),
+        },
+      }
+    );
+  } catch (error) {
+    return res
+      .clearCookie("ACCESS_TOKEN", HELPER_UTILITIES.COOKIE_OPTIONS)
+      .clearCookie("REFRESH_TOKEN", HELPER_UTILITIES.COOKIE_OPTIONS)
+      .status(401)
+      .json(APIResponse.send(401, "Un-Authorized Access Detected!"));
+  }
+
+  return res
+    .clearCookie("ACCESS_TOKEN", HELPER_UTILITIES.COOKIE_OPTIONS)
+    .clearCookie("REFRESH_TOKEN", HELPER_UTILITIES.COOKIE_OPTIONS)
+    .status(200)
+    .json(APIResponse.send(200, "User signed out successfully"));
+});
 
 const forgetPassword = asyncHandler(async (req: Request, res: Response) => {});
 

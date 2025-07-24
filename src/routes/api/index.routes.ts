@@ -2,6 +2,14 @@
 import express, { type Router } from "express";
 import v1Router from "./v1/index.routes";
 
+declare global {
+  namespace Express {
+    interface Request {
+      user?: any;
+    }
+  }
+}
+
 // Configuration Section
 const router: Router = express.Router();
 
