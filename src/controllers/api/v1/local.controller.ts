@@ -120,7 +120,7 @@ const signout = asyncHandler(async (req: Request, res: Response) => {
       .clearCookie("ACCESS_TOKEN", HELPER_UTILITIES.COOKIE_OPTIONS)
       .clearCookie("REFRESH_TOKEN", HELPER_UTILITIES.COOKIE_OPTIONS)
       .status(401)
-      .json(APIResponse.send(401, "Un-Authorized Access Detected!"));
+      .json(APIError.send(401, "Un-Authorized Access Detected!"));
   }
 
   return res
@@ -130,9 +130,54 @@ const signout = asyncHandler(async (req: Request, res: Response) => {
     .json(APIResponse.send(200, "User signed out successfully"));
 });
 
-const forgetPassword = asyncHandler(async (req: Request, res: Response) => {});
+const forgetPassword = asyncHandler(async (req: Request, res: Response) => {
+  const { email, password } = req.body;
 
-const changePassword = asyncHandler(async (req: Request, res: Response) => {});
+  const user = await User.findOne({ email });
+  if (!user) {
+    return res.status(404).json(APIError.send(404, "User not found!"));
+  }
+
+  const token = await Token.findOne({ user: user._id });
+  if (!token?.forgetPasswordToken?.isAuthenticated) {
+    return res.status(403).json(
+      APIError.send(403, "User not verified to change password", {
+        user_verification: false,
+      })
+    );
+  }
+
+  user.password = password;
+  await user.save();
+
+  return res
+    .status(200)
+    .json(APIResponse.send(200, "Password updated successfully"));
+});
+
+const changePassword = asyncHandler(async (req: Request, res: Response) => {
+  const { user_id } = req.user;
+  const { password, newPassword } = req.body;
+
+  const user = await User.findById(user_id);
+  if (!user) {
+    return res.status(404).json(APIError.send(404, "User not found!"));
+  }
+
+  const isPasswordValid = await user.validatePassword(password);
+  if (!isPasswordValid) {
+    return res
+      .status(403)
+      .json(APIError.send(403, "Please enter a valid current password"));
+  }
+
+  user.password = newPassword;
+  await user.save();
+
+  return res
+    .status(200)
+    .json(APIResponse.send(200, "Password updated successfully"));
+});
 
 const changeUsername = asyncHandler(async (req: Request, res: Response) => {});
 
