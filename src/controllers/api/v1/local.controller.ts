@@ -131,7 +131,7 @@ const signout = asyncHandler(async (req: Request, res: Response) => {
 });
 
 const forgetPassword = asyncHandler(async (req: Request, res: Response) => {
-  const { email, password } = req.body;
+  const { email, password, passcode } = req.body;
 
   const user = await User.findOne({ email });
   if (!user) {
@@ -139,7 +139,7 @@ const forgetPassword = asyncHandler(async (req: Request, res: Response) => {
   }
 
   const token = await Token.findOne({ user: user._id });
-  if (!token?.forgetPasswordToken?.isAuthenticated) {
+  if (token?.forgetPasswordToken?.passcode != passcode) {
     return res.status(403).json(
       APIError.send(403, "User not verified to change password", {
         user_verification: false,

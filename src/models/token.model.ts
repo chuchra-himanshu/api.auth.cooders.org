@@ -25,7 +25,7 @@ const tokenSchema = new mongoose.Schema<TokenSchemaInterface>(
     forgetPasswordToken: {
       code: String,
       expiry: Date,
-      isAuthenticated: Boolean,
+      passcode: String,
     },
   },
   {

@@ -27,6 +27,6 @@ interface TokenSchemaInterface {
   forgetPasswordToken: {
     code: string;
     expiry: Date;
-    isAuthenticated: boolean;
+    passcode: string;
   };
 }
