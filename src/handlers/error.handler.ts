@@ -1,6 +1,7 @@
 class APIError extends Error {
   public status: number;
   public success: boolean;
+  public message: string;
   public data?: any;
 
   constructor({
